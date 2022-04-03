@@ -53,7 +53,7 @@ exports.createResponse = async (response) => {
 
 exports.responseSQLtoObj = resp => {
     const http_times = resp.selected_times.map(time_obj => 
-        luxon.DateTime.fromObject(time_obj).toHTTP());
+        luxon.DateTime.fromJSDate(time_obj).toHTTP());
     resp.selected_times = http_times;
     return resp
 }
