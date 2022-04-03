@@ -25,13 +25,13 @@ exports.createEvent = (event) => {
   event.event_id = crypto.randomBytes(3).toString('hex'); // creates 6 character random string
 
   const available_times = event.available_times.map(row => row.map(time_http => DateTime.fromHTTP(time_http).toISO()))
-  
+
   const query = `INSERT INTO event (event_id, creator, event_name, description,
   available_times, time_interval_min, time_start, time_end) 
   VALUES 
   ($1, $2, $3, $4, $5, $6, $7, $8)`;
   const values = [event.event_id, event.creator, event.event_name, event.description,
-            available_times, event.time_interval_min, event.time_start, event.time_end]
+            JSON.stringify(available_times), event.time_interval_min, event.time_start, event.time_end]
   
   return pool
     .query(query, values)
@@ -39,7 +39,7 @@ exports.createEvent = (event) => {
     .catch(err => {console.log(err); return { code: "DB_ERROR"}})
 };
 
-const timeObjToHTTP = time => luxon.DateTime.fromJSDate(time).toHTTP()
+const timeObjToHTTP = time => luxon.DateTime.fromISO(time).toHTTP()
 
 exports.getEventById = (event_id) => {
   const query = `SELECT * FROM event WHERE event_id = $1`
