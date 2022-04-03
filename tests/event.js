@@ -3,6 +3,8 @@ let chai = require("chai");
 let chaiHttp = require("chai-http");
 let app = require("../server");
 let luxon = require('luxon')
+let { DateTime } = require('luxon')
+let utils = require('./testUtils')
 // Configure chai
 chai.use(chaiHttp);
 chai.should();
@@ -20,15 +22,24 @@ describe("whenisbetter", () => {
     //     });
     // });
 
+
     it("should create a new event", (done) => {
-        console.log(luxon.DateTime.now().toHTTP())
+        // console.log(luxon.DateTime.now().toHTTP())
+        const start = DateTime.fromObject({year: 2022, month: 4, day: 3, hour: 8})
+        const end = DateTime.fromObject({year: 2022, month: 4, day: 7, hour: 21})
+        const delta_duration = luxon.Duration.fromObject({minutes: 60})
+
+        const dateTimes = utils.generateDateTimeArray(start, end, delta_duration)
         body = {
             creator: "creator",
             event_name: "event name",
             description: "description",
-            available_times: [luxon.DateTime.now().toHTTP()],
+            available_times: dateTimes,
+            time_start: start,
+            time_end: end,
             time_interval_min: 30
         }
+        console.log(body)
         chai
           .request(app)
           .post('/event')

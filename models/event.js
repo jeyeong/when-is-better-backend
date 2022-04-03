@@ -15,7 +15,7 @@ let crypto = require('crypto')
  * }
  */
 exports.createEvent = (event) => {
-  const required_fields = ['creator', 'available_times', 'time_interval_min']
+  const required_fields = ['creator', 'available_times', 'time_interval_min', 'time_start', 'time_end']
   for (f of required_fields) {
     if (!(f in event)) {
       return { code: "MISSING_FIELDS" }
@@ -24,20 +24,22 @@ exports.createEvent = (event) => {
   
   event.event_id = crypto.randomBytes(3).toString('hex'); // creates 6 character random string
 
-  available_times = event.available_times.map(time_http => DateTime.fromHTTP(time_http))
+  const available_times = event.available_times.map(row => row.map(time_http => DateTime.fromHTTP(time_http).toISO()))
   
   const query = `INSERT INTO event (event_id, creator, event_name, description,
-  available_times, time_interval_min) 
+  available_times, time_interval_min, time_start, time_end) 
   VALUES 
-  ($1, $2, $3, $4, $5, $6)`;
+  ($1, $2, $3, $4, $5, $6, $7, $8)`;
   const values = [event.event_id, event.creator, event.event_name, event.description,
-            available_times, event.time_interval_min]
+            available_times, event.time_interval_min, event.time_start, event.time_end]
   
   return pool
     .query(query, values)
     .then(res => {return {code: "SUCCESS", event_id: event.event_id}})
     .catch(err => {console.log(err); return { code: "DB_ERROR"}})
 };
+
+const timeObjToHTTP = time => luxon.DateTime.fromJSDate(time).toHTTP()
 
 exports.getEventById = (event_id) => {
   const query = `SELECT * FROM event WHERE event_id = $1`
@@ -47,10 +49,13 @@ exports.getEventById = (event_id) => {
         return { code: "EVENT_NOT_FOUND"}
       }
       const event = res.rows[0];
-      available_times = event.available_times.map(time_obj => 
-        luxon.DateTime.fromObject(time_obj).toHTTP()
+
+      const available_times = event.available_times.map(day => day.map(time_obj => 
+        timeObjToHTTP(time_obj))
       )
       event.available_times = available_times
+      event.time_start = timeObjToHTTP(event.time_start)
+      event.time_end = timeObjToHTTP(event.time_end)
 
       return {code: "SUCCESS", event}
     }).catch(err => {console.log(err); return { code: "DB_ERROR" }}) 
