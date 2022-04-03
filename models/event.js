@@ -18,7 +18,7 @@ exports.createEvent = (event) => {
   const required_fields = ['creator', 'available_times', 'time_interval_min', 'time_start', 'time_end']
   for (f of required_fields) {
     if (!(f in event)) {
-      return Promise({ code: "MISSING_FIELDS" })
+      return new Promise({ code: "MISSING_FIELDS" })
     }
   }
   
