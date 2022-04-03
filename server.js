@@ -23,13 +23,13 @@ app.post("/event", (req, res) => {
     .then(result => {
       switch (result.code) {
         case "SUCCESS":
-          res.status(201).json(result);
+          res.status(200).json(result);
           return
         case "MISSING_FIELDS":
-          res.status(400).json(result);
+          res.status(200).json(result);
           return
         case "DB_ERROR":
-          res.status(400).json(result);
+          res.status(200).json(result);
           return
         default:
           res.status(500);
@@ -47,10 +47,10 @@ app.get("/event/:event_id", (req, res) => {
           res.status(200).json(result)
           return
         case "DB_ERROR":
-          res.status(400).json(result)
+          res.status(200).json(result)
           return
         case "EVENT_NOT_FOUND":
-          res.status(404).json(result)
+          res.status(200).json(result)
           return
         default:
           res.status(500);
@@ -64,13 +64,13 @@ app.post("/response", (req, res) => {
     .then(result => {
       switch (result.code) {
         case "SUCCESS":
-          res.status(201).json(result);
+          res.status(200).json(result);
           return
         case "MISSING_FIELDS":
-          res.status(400).json(result);
+          res.status(200).json(result);
           return
         case "DB_ERROR":
-          res.status(400).json(result);
+          res.status(200).json(result);
           return
         default:
           res.status(500);
