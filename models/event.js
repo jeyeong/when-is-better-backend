@@ -39,7 +39,9 @@ exports.createEvent = (event) => {
     .catch(err => {console.log(err); return { code: "DB_ERROR"}})
 };
 
-const timeObjToHTTP = time => luxon.DateTime.fromISO(time).toHTTP()
+const timeObjToHTTP = time => luxon.DateTime.fromJSDate(time).toHTTP()
+
+const timeISOToHTTP = time => luxon.DateTime.fromISO(time).toHTTP()
 
 exports.getEventById = (event_id) => {
   const query = `SELECT * FROM event WHERE event_id = $1`
@@ -51,7 +53,7 @@ exports.getEventById = (event_id) => {
       const event = res.rows[0];
 
       const available_times = event.available_times.map(day => day.map(time_obj => 
-        timeObjToHTTP(time_obj))
+        timeISOToHTTP(time_obj))
       )
       event.available_times = available_times
       event.time_start = timeObjToHTTP(event.time_start)
